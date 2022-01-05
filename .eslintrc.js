@@ -1,7 +1,12 @@
 module.exports = {
 	root: true,
-	parser: 'babel-eslint',
-	extends: [ 'wpcalypso/react', 'plugin:jsx-a11y/recommended', 'prettier' ],
+	parser: '@babel/eslint-parser',
+	extends: [
+		'wpcalypso',
+		'plugin:@wordpress/eslint-plugin/i18n',
+		'plugin:jsx-a11y/recommended',
+		'prettier',
+	],
 	env: {
 		browser: true,
 		es6: true,
@@ -15,12 +20,9 @@ module.exports = {
 		ecmaFeatures: {
 			jsx: true,
 		},
+		requireConfigFile: false,
 	},
-	settings: {
-		react: {
-			version: 'detect', // React version. "detect" automatically picks the version you have installed.
-		},
-	},
+	settings: {},
 	plugins: [ 'jsx-a11y', 'lodash', 'jsdoc' ],
 	rules: {
 		// REST API objects include underscores
@@ -60,15 +62,6 @@ module.exports = {
 		],
 		'padded-blocks': [ 2, 'never' ],
 		'prefer-const': 2,
-		'react/jsx-curly-spacing': [ 2, 'always' ],
-		'react/jsx-no-bind': 2,
-		// 'react/jsx-space-before-closing': 2,
-		'react/jsx-tag-spacing': [ 2, { beforeSelfClosing: 'always' } ],
-		'react/no-danger': 2,
-		'react/no-did-mount-set-state': 2,
-		'react/no-did-update-set-state': 2,
-		'react/no-is-mounted': 2,
-		'react/prefer-es6-class': 1,
 		semi: 2,
 		'semi-spacing': 2,
 		'space-before-blocks': [ 2, 'always' ],
@@ -82,10 +75,7 @@ module.exports = {
 				},
 			},
 		],
-		'wpcalypso/i18n-ellipsis': 2,
-		'wpcalypso/i18n-no-collapsible-whitespace': 2,
 		'wpcalypso/i18n-no-this-translate': 2,
-		'wpcalypso/i18n-no-variables': 2,
 		'wpcalypso/i18n-mismatched-placeholders': 2,
 		'wpcalypso/import-docblock': 2,
 		'wpcalypso/jsx-gridicon-size': 0, // Ignored for Jetpack
@@ -104,6 +94,19 @@ module.exports = {
 		'react/no-string-refs': 0,
 		'jsx-a11y/anchor-is-valid': 0,
 
+		// Both wpcalypso and @wordpress/eslint-plugin offer these. We only need one copy.
+		'wpcalypso/i18n-ellipsis': 0,
+		'wpcalypso/i18n-no-collapsible-whitespace': 0,
+		'wpcalypso/i18n-no-variables': 0,
+
+		// Dummy domain, projects should override this in their own .eslintrc.js.
+		'@wordpress/i18n-text-domain': [
+			'error',
+			{
+				allowedTextDomain: "no text domain is set in this in this project's .eslintrc.js",
+			},
+		],
+
 		// JSDoc plugin overrides
 		'jsdoc/check-alignment': 1, // Recommended
 		'jsdoc/check-examples': 1,
@@ -114,7 +117,14 @@ module.exports = {
 		'jsdoc/check-types': 1, // Recommended
 		'jsdoc/implements-on-classes': 1, // Recommended
 		'jsdoc/newline-after-description': 1, // Recommended
-		'jsdoc/no-undefined-types': 1, // Recommended
+		'jsdoc/no-undefined-types': [
+			1,
+			{
+				definedTypes: [
+					'Iterable', // https://github.com/jsdoc/jsdoc/issues/1009 and https://github.com/gajus/eslint-plugin-jsdoc/issues/280
+				],
+			},
+		],
 		'jsdoc/require-description': 1,
 		'jsdoc/require-hyphen-before-param-description': 1,
 		'jsdoc/require-jsdoc': 1, // Recommended

@@ -11,7 +11,6 @@ const cache = {};
  * @param {string} owner   - Repository owner.
  * @param {string} repo    - Repository name.
  * @param {string} number  - PR number.
- *
  * @returns {Promise<Array>} Promise resolving to an array of all labels for that PR.
  */
 async function getLabels( octokit, owner, repo, number ) {
@@ -24,7 +23,7 @@ async function getLabels( octokit, owner, repo, number ) {
 
 	debug( `get-labels: Get list of labels on ${ cacheKey }.` );
 
-	for await ( const response of octokit.paginate.iterator( octokit.issues.listLabelsOnIssue, {
+	for await ( const response of octokit.paginate.iterator( octokit.rest.issues.listLabelsOnIssue, {
 		owner,
 		repo,
 		issue_number: +number,

@@ -64,41 +64,12 @@ jobs:
         with:
           checkout: false
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
+      - name: Setup tools
+        uses: ./.github/actions/tool-setup
         with:
-          php-version: ${{ matrix.php }}
-          tools: composer
-          extensions: mysql, imagick
-          coverage: none
-
-      - name: Setup Node
-        uses: actions/setup-node@v2
-        with:
-          node-version: ${{ matrix.node }}
-
-      - name: Get Composer cache directory
-        id: composer-cache
-        run: |
-          echo "::set-output name=dir::$(composer config cache-files-dir)"
-      - name: Use composer cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-composer-
-
-      - name: Get yarn cache directory path
-        id: yarn-cache-dir-path
-        run: echo "::set-output name=dir::$(yarn cache dir)"
-      - name: Use yarn cache
-        uses: actions/cache@v2
-        with:
-          path: ${{ steps.yarn-cache-dir-path.outputs.dir }}
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-yarn-
+          php: ${{ matrix.php }}
+          coverage: ${{ matrix.script == 'test-coverage' && 'pcov' || 'none' }}
+          node: ${{ matrix.node }}
 
       - name: Detect changed projects
         id: changed
@@ -112,29 +83,15 @@ jobs:
         if: steps.changed.outputs.any-plugins == 'true' && matrix.wp != 'none'
         run: .github/files/setup-wordpress-env.sh
 
-      - name: Tool versions
-        run: |
-          which php
-          php --version
-          which phpdbg
-          phpdbg --version
-          which composer
-          composer --version
-          which node
-          node --version
-          which yarn
-          yarn --version
-          which jq
-          jq --version
-
       - name: Monorepo install
         run: |
-          echo "::group::Yarn"
-          yarn install
+          echo "::group::Pnpm"
+          pnpm install
           echo "::endgroup::"
 
       - name: Run project tests
         env:
+          EXPERIMENTAL: ${{ matrix.experimental && 'true' || 'false' }}
           CHANGED: ${{ steps.changed.outputs.projects }}
         run: |
           EXIT=0
@@ -154,7 +111,7 @@ jobs:
               if [[ "$WP_BRANCH" != 'none' ]]; then
                 DIR="/tmp/wordpress-$WP_BRANCH/src/wp-content/$SLUG"
               fi
-            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' ]]; then
+            elif [[ "$WP_BRANCH" != 'latest' && "$WP_BRANCH" != 'none' && "$EXPERIMENTAL" != "true" ]]; then
               echo "Skipping $SLUG, only plugins run for WP_BRANCH = $WP_BRANCH"
               continue
             fi
