@@ -89,6 +89,7 @@ class Initializer {
 			array(
 				'apiRoot'               => esc_url_raw( rest_url() ),
 				'apiNonce'              => wp_create_nonce( 'wp_rest' ),
+				'products'              => array( __CLASS__, 'get_products' ),
 				'redirectUrl'           => admin_url( '?page=my-jetpack' ),
 				'topJetpackMenuItemUrl' => Admin_Menu::get_top_level_menu_item_url(),
 			)
@@ -96,6 +97,15 @@ class Initializer {
 
 		// Connection Initial State.
 		wp_add_inline_script( 'my_jetpack_main_app', Connection_Initial_State::render(), 'before' );
+	}
+
+	/**
+	 * Product data
+	 *
+	 * @return array Jetpack products on the site and their availability.
+	 */
+	public static function get_products() {
+		return array();
 	}
 
 	/**
